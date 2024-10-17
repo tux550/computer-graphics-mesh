@@ -1,36 +1,8 @@
 #include <cmath>
 #include "mesh/mesh.h"
+#include "mesh/geometry.h"
 
 using namespace mesh;
-
-Mesh get_tetrahedron() {
-  // Vertex of tetrahedron
-  // > (0, 0, 0)
-  // > (0, 1, 1)
-  // > (1, 0, 1)
-  // > (1, 1, 0)
-  // Faces of tetrahedron
-  // > v0, v1, v3
-  // > v0, v3, v2
-  // > v0, v2, v1
-  // > v1, v2, v3
-  float d = std::sqrt(1.0f/3.0f);
-
-  std::vector<Vertex3D> v = {
-    Vertex3D(-d, -d, -d),
-    Vertex3D(-d, d, d),
-    Vertex3D(d, -d, d),
-    Vertex3D(d, d, -d)
-  };
-  std::vector<Face3D> f = {
-    Face3D({v[0], v[1], v[3]}),
-    Face3D({v[0], v[3], v[2]}),
-    Face3D({v[0], v[2], v[1]}),
-    Face3D({v[1], v[2], v[3]})
-  };
-
-  return Mesh(f);
-}
 
 Vertex3D toUnitSphere(const Vertex3D& vertex) {
   float x = vertex.x;
@@ -41,7 +13,7 @@ Vertex3D toUnitSphere(const Vertex3D& vertex) {
 }
 
 Mesh sphereBySplittingEdges(int n){
-  Mesh base = get_tetrahedron();
+  Mesh base = unitCircleTetrahedron();
   for (int i = 0; i < n; i++) {
     // New mesh
     std::vector<Face3D> new_faces;

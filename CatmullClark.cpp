@@ -2,48 +2,9 @@
 #include <set>
 #include <map>
 #include "mesh/mesh.h"
+#include "mesh/geometry.h"
 
 using namespace mesh;
-
-Mesh get_cube() {
-  // Vertex
-  // -1 -1 -1
-  // -1 1 -1
-  // 1 1 -1
-  // 1 -1 -1
-  // -1 -1 1
-  // -1 1 1
-  // 1 1 1
-  // 1 -1 1
-  float d = std::sqrt(1.0f/3.0f);
-  std::vector<Vertex3D> v = {
-    Vertex3D(-d, -d, -d),
-    Vertex3D(-d, d, -d),
-    Vertex3D(d, d, -d),
-    Vertex3D(d, -d, -d),
-    Vertex3D(-d, -d, d),
-    Vertex3D(-d, d, d),
-    Vertex3D(d, d, d),
-    Vertex3D(d, -d, d)
-  };
-  // Faces
-  // 3 7 4 0
-  // 1 0 4 5
-  // 4 7 6 5
-  // 1 2 3 0
-  // 3 2 6 7
-  // 6 2 1 5
-  std::vector<Face3D> f = {
-    Face3D({v[3], v[7], v[4], v[0]}),
-    Face3D({v[1], v[0], v[4], v[5]}),
-    Face3D({v[4], v[7], v[6], v[5]}),
-    Face3D({v[1], v[2], v[3], v[0]}),
-    Face3D({v[3], v[2], v[6], v[7]}),
-    Face3D({v[6], v[2], v[1], v[5]})
-  };
-
-  return Mesh(f);
-}
 
 Vertex3D toUnitSphere(const Vertex3D& vertex) {
   float x = vertex.x;
@@ -54,7 +15,7 @@ Vertex3D toUnitSphere(const Vertex3D& vertex) {
 }
 
 Mesh catmullClark(int n){
-  Mesh base = get_cube();
+  Mesh base = unitCircleCube();
   for (int i = 0; i < n; i++) {
     // New mesh
     std::vector<Face3D> new_faces;
