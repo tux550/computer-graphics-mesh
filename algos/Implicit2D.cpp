@@ -135,6 +135,6 @@ int main() {
     return x * x + y * y - 1;
   };
   std::vector<Square> squares = adaptativeMarchingSquares(f, -4, -4, 8, 8);
-  writeToEPS(squares, "implicit2d.eps");
+  writeToEPS(squares, "implicit.eps");
   return 0;
 }

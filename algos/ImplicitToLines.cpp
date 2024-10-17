@@ -197,10 +197,10 @@ void writeToEPS(
 }
 
 int main() {
-  double min_x = -2;
-  double min_y = -2;
-  double width = 4;
-  double height = 4;
+  double min_x = -4;
+  double min_y = -4;
+  double width = 8;
+  double height = 8;
 
   std::vector<Line> lines = adaptativeMarchingSquares(
     f,
@@ -211,6 +211,6 @@ int main() {
 
   writeToEPS(
     min_x, min_x + width, min_y, min_y + height,
-    lines, "implicit_line.eps");
+    lines, "implicit.eps");
   return 0;
 }
