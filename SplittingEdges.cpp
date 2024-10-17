@@ -1,6 +1,7 @@
 #include <cmath>
-#include "mesh.h"
+#include "mesh/mesh.h"
 
+using namespace mesh;
 
 Mesh get_tetrahedron() {
   // Vertex of tetrahedron
@@ -45,11 +46,11 @@ Mesh sphereBySplittingEdges(int n){
     // New mesh
     std::vector<Face3D> new_faces;
     // Loop faces
-    for (MeshFace face : base.get_faces()) {
+    for (Face3D face : base.get_faces()) {
       // Get vertices
-      MeshVertex v0 = base.get_vertex(face[0]);
-      MeshVertex v1 = base.get_vertex(face[1]);
-      MeshVertex v2 = base.get_vertex(face[2]);
+      Vertex3D v0 = face.vertices[0];
+      Vertex3D v1 = face.vertices[1];
+      Vertex3D v2 = face.vertices[2];
       // Get new vertices
       Vertex3D v01 = toUnitSphere(Vertex3D((v0.x + v1.x)/2, (v0.y + v1.y)/2, (v0.z + v1.z)/2));
       Vertex3D v12 = toUnitSphere(Vertex3D((v1.x + v2.x)/2, (v1.y + v2.y)/2, (v1.z + v2.z)/2));
@@ -71,6 +72,6 @@ Mesh sphereBySplittingEdges(int n){
 
 int main() {
   Mesh sphere = sphereBySplittingEdges(3);
-  sphere.save("sphere.ply");
+  sphere.save("outputs/sphere.ply");
   return 0;
 }

@@ -1,8 +1,9 @@
 #include <cmath>
 #include <set>
 #include <map>
-#include "mesh.h"
+#include "mesh/mesh.h"
 
+using namespace mesh;
 
 Mesh get_cube() {
   // Vertex
@@ -159,6 +160,6 @@ Mesh catmullClark(int n){
 
 int main() {
   Mesh sphere = catmullClark(5);
-  sphere.save("ck.ply");
+  sphere.save("outputs/ck.ply");
   return 0;
 }
