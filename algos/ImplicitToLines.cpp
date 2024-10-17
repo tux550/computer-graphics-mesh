@@ -106,7 +106,6 @@ std::vector<Line> adaptativeMarchingSquares(
   double py = 0.01, // Max precision in y
   size_t samples = 1000
 ) {
-  std::cout << "Adaptative Marching Squares: " << x_start << ", " << y_start << ", " << width << ", " << height << std::endl;
   // Return value
   std::vector<Line> lines;
   // Split the space in squares
@@ -138,7 +137,7 @@ std::vector<Line> adaptativeMarchingSquares(
         }
       }
       // If different signs
-      if (positive != negative) {
+      if (positive && negative) {
         // If dx and dy are small enough, then return
         if (dx < px && dy < py) {
           // Get lines from cases
@@ -166,36 +165,52 @@ std::vector<Line> adaptativeMarchingSquares(
   return lines;
 }
 
-void writeToEPS(const std::vector<Line>& lines, const std::string& filename) {
+void writeToEPS(
+  double min_x, double max_x,
+  double min_y, double max_y,
+  
+  const std::vector<Line>& lines, const std::string& filename) {
   // Get min and max values
-  double min_x = std::numeric_limits<double>::max();
-  double max_x = std::numeric_limits<double>::min();
-  double min_y = std::numeric_limits<double>::max();
-  double max_y = std::numeric_limits<double>::min();
-  for (const Line& line : lines) {
+  //double min_x = std::numeric_limits<double>::max();
+  //double max_x = std::numeric_limits<double>::min();
+  //double min_y = std::numeric_limits<double>::max();
+  //double max_y = std::numeric_limits<double>::min();
+  /*for (const Line& line : lines) {
     min_x = std::min(min_x, std::min(line.x0, line.x1));
     max_x = std::max(max_x, std::max(line.x0, line.x1));
     min_y = std::min(min_y, std::min(line.y0, line.y1));
     max_y = std::max(max_y, std::max(line.y0, line.y1));
-  }
+  }*/
 
   std::ofstream file(filename);
   file << "%!PS-Adobe-3.0 EPSF-3.0" << std::endl;
   file << "%%BoundingBox: " << min_x << " " << min_y << " " << max_x << " " << max_y << std::endl;
+  file << "0.01 setlinewidth" << std::endl;
   for (const Line& line : lines) {
     file << "newpath" << std::endl;
     file << line.x0 << " " << line.y0 << " moveto" << std::endl;
-    file << line.x1 << " " << line.y1 << " lineto" << std::endl;
+    file << line.x1 - line.x0 << " " << line.y1 - line.y0 << " rlineto" << std::endl;
+    file << "closepath" << std::endl;
     file << "stroke" << std::endl;
   }
   file << "showpage" << std::endl;
 }
 
 int main() {
-  std::vector<Line> lines = adaptativeMarchingSquares(f, -2, -2, 4, 4);
+  double min_x = -2;
+  double min_y = -2;
+  double width = 4;
+  double height = 4;
+
+  std::vector<Line> lines = adaptativeMarchingSquares(
+    f,
+    min_x, min_y,
+    width, height);
   // Get stats
   std::cout << "Lines: " << lines.size() << std::endl;
 
-  writeToEPS(lines, "impllicit_line.eps");
+  writeToEPS(
+    min_x, min_x + width, min_y, min_y + height,
+    lines, "implicit_line.eps");
   return 0;
 }
