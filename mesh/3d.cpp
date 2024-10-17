@@ -15,6 +15,11 @@ namespace mesh{
     return x < other.x || (x == other.x && y < other.y) || (x == other.x && y == other.y && z < other.z);
   }
 
+  Vertex3D Vertex3D::normalized() {
+    float norm = sqrt(x * x + y * y + z * z);
+    return Vertex3D(x / norm, y / norm, z / norm);
+  }
+
   Face3D::Face3D(const std::vector<Vertex3D>& vertices):
     vertices(vertices) {}
 

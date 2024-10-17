@@ -4,13 +4,6 @@
 
 using namespace mesh;
 
-Vertex3D toUnitSphere(const Vertex3D& vertex) {
-  float x = vertex.x;
-  float y = vertex.y;
-  float z = vertex.z;
-  float norm = std::sqrt(x*x + y*y + z*z);
-  return Vertex3D(x/norm, y/norm, z/norm);
-}
 
 Mesh sphereBySplittingEdges(int n){
   Mesh base = unitCircleTetrahedron();
@@ -24,9 +17,9 @@ Mesh sphereBySplittingEdges(int n){
       Vertex3D v1 = face.vertices[1];
       Vertex3D v2 = face.vertices[2];
       // Get new vertices
-      Vertex3D v01 = toUnitSphere(Vertex3D((v0.x + v1.x)/2, (v0.y + v1.y)/2, (v0.z + v1.z)/2));
-      Vertex3D v12 = toUnitSphere(Vertex3D((v1.x + v2.x)/2, (v1.y + v2.y)/2, (v1.z + v2.z)/2));
-      Vertex3D v20 = toUnitSphere(Vertex3D((v2.x + v0.x)/2, (v2.y + v0.y)/2, (v2.z + v0.z)/2));
+      Vertex3D v01 = Vertex3D((v0.x + v1.x)/2, (v0.y + v1.y)/2, (v0.z + v1.z)/2).normalized();
+      Vertex3D v12 = Vertex3D((v1.x + v2.x)/2, (v1.y + v2.y)/2, (v1.z + v2.z)/2).normalized();
+      Vertex3D v20 = Vertex3D((v2.x + v0.x)/2, (v2.y + v0.y)/2, (v2.z + v0.z)/2).normalized();
       // Insert new faces
       new_faces.push_back(Face3D({v0, v01, v20}));
       new_faces.push_back(Face3D({v1, v12, v01}));

@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <cmath>
 
 
 #ifndef MESH_GENERICS_3D_H
@@ -17,6 +18,7 @@ namespace mesh{
     Vertex3D();
     bool operator==(const Vertex3D& other) const;
     bool operator<(const Vertex3D& other) const;
+    Vertex3D normalized();
   };
 
   struct Edge3D {

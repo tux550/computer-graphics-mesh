@@ -6,14 +6,6 @@
 
 using namespace mesh;
 
-Vertex3D toUnitSphere(const Vertex3D& vertex) {
-  float x = vertex.x;
-  float y = vertex.y;
-  float z = vertex.z;
-  float norm = std::sqrt(x*x + y*y + z*z);
-  return Vertex3D(x/norm, y/norm, z/norm);
-}
-
 Mesh catmullClark(int n){
   Mesh base = unitCircleCube();
   for (int i = 0; i < n; i++) {
