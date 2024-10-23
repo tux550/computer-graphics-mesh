@@ -1,14 +1,15 @@
-MESH_LIB_FILES = mesh/*.cpp mesh/*.h
+# find mesh/*.cpp mesh/*.h
+MESH_LIB_FILES = $(wildcard mesh/*.cpp) $(wildcard mesh/*.h)
 OUT_FILES = main.exe
-EPS_FILES = implicit.eps
-il:
-	g++ -o $(OUT_FILES) algos/ImplicitToLines.cpp
+OUTPUT_FOLDERS = outputs
+EPS_FILES = simplicit.eps
+marching_cubes:
+	g++ -o $(OUT_FILES) -I ./mesh $(MESH_LIB_FILES) marching/MarchingCubes.cpp
 	./$(OUT_FILES)
-	epstopdf $(EPS_FILES)
-is:
-	g++ -o $(OUT_FILES) algos/Implicit2D.cpp
+marching_squares:
+	g++ -o $(OUT_FILES) marching/MarchingSquares.cpp $(MESH_LIB_FILES)
 	./$(OUT_FILES)
-	epstopdf $(EPS_FILES)
+	cd $(OUTPUT_FOLDERS) && epstopdf $(EPS_FILES)
 cc:
 	g++ -o $(OUT_FILES) $(MESH_LIB_FILES) algos/CatmullClark.cpp
 se:
