@@ -20,6 +20,13 @@ namespace mesh{
     bool operator<(const Vertex3D& other) const;
     Vertex3D normalized();
   };
+  Vertex3D operator+(const Vertex3D& v1, const Vertex3D& v2);
+  Vertex3D operator-(const Vertex3D& v1, const Vertex3D& v2);
+  Vertex3D operator/(const Vertex3D& v1, double scalar);
+
+  Vertex3D cross_product(const Vertex3D& v1, const Vertex3D& v2);
+  
+  double dot_product(const Vertex3D& v1, const Vertex3D& v2);
 
   struct Edge3D {
     Vertex3D v1, v2;
@@ -38,6 +45,7 @@ namespace mesh{
     Face3D(const std::vector<Vertex3D>& vertices, int r, int g, int b) ;
     Vertex3D get_midpoint();
     std::vector<Edge3D> get_edges();
+    void flip();
   };
 
 }

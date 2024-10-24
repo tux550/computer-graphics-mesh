@@ -20,6 +20,29 @@ namespace mesh{
     return Vertex3D(x / norm, y / norm, z / norm);
   }
 
+  Vertex3D operator+(const Vertex3D& v1, const Vertex3D& v2) {
+    return Vertex3D(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
+  }
+
+  Vertex3D operator-(const Vertex3D& v1, const Vertex3D& v2) {
+    return Vertex3D(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z);
+  }
+
+  Vertex3D operator/(const Vertex3D& v1, double scalar) {
+    return Vertex3D(v1.x / scalar, v1.y / scalar, v1.z / scalar);
+  }
+
+  Vertex3D cross_product(const Vertex3D& v1, const Vertex3D& v2) {
+    return Vertex3D(
+      v1.y * v2.z - v1.z * v2.y,
+      v1.z * v2.x - v1.x * v2.z,
+      v1.x * v2.y - v1.y * v2.x
+    );
+  }
+  double dot_product(const Vertex3D& v1, const Vertex3D& v2) {
+    return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+  }
+
   Face3D::Face3D(const std::vector<Vertex3D>& vertices):
     vertices(vertices),
     r(0), g(0), b(0) {}
@@ -31,6 +54,10 @@ namespace mesh{
   Face3D::Face3D(const std::vector<Vertex3D>& vertices, int r, int g, int b) :
     vertices(vertices),
     r(r), g(g), b(b) {}
+
+  void Face3D::flip() {
+    std::reverse(vertices.begin(), vertices.end());
+  }
 
   Vertex3D Face3D::get_midpoint() {
     float x = 0, y = 0, z = 0;
