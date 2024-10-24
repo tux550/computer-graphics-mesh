@@ -266,10 +266,10 @@ std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t
     weightedMidpoint(vertex, cube[n[1]], func),
     weightedMidpoint(vertex, cube[n[2]], func)
   };
-  // Direction vector: vertex_index to opposite vertex
-  Vertex3D dir_vec = cube[getOppositeVertex(vertex_index)] - vertex;
+  // Direction vector: vertex->center
+  Vertex3D dir_vec = getCenter(cube) - vertex;
   if (!pointingSameDirection(points[0], points[1], points[2], dir_vec)) {
-    std::reverse(n.begin(), n.end());
+    std::reverse(points.begin(), points.end());
   }
 
   return {
