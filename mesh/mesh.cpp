@@ -9,10 +9,10 @@ namespace mesh{
   // Transform to generic Face3D
   Face3D Mesh::to_face(const MeshFace& face) {
     std::vector<Vertex3D> vertices;
-    for (int vertex_id : face) {
+    for (int vertex_id : face.vertices) {
       vertices.push_back(get_vertex(vertex_id));
     }
-    return Face3D(vertices);
+    return Face3D(vertices, face.r, face.g, face.b);
   }
 
   // Insert vertex into mesh
@@ -34,8 +34,11 @@ namespace mesh{
     MeshFace mesh_face;
     for (Vertex3D vertex : face.vertices) {
       int vertex_id = insert_vertex(vertex);
-      mesh_face.push_back(vertex_id);
+      mesh_face.vertices.push_back(vertex_id);
     }
+    mesh_face.r = face.r;
+    mesh_face.g = face.g;
+    mesh_face.b = face.b;
     faces.push_back(mesh_face);
     return faces.size() - 1;
   }
@@ -72,7 +75,7 @@ namespace mesh{
 
   // === To PLY ===
   std::string Mesh::get_header() {
-    return "ply\nformat ascii 1.0\nelement vertex " + std::to_string(vertices.size()) + "\nproperty float x\nproperty float y\nproperty float z\nelement face " + std::to_string(faces.size()) + "\nproperty list uchar int vertex_index\nend_header\n";
+    return "ply\nformat ascii 1.0\nelement vertex " + std::to_string(vertices.size()) + "\nproperty float x\nproperty float y\nproperty float z\nelement face " + std::to_string(faces.size()) + "\nproperty list uchar int vertex_index\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
   }
 
   std::string Mesh::get_vertex_string() {
@@ -86,10 +89,12 @@ namespace mesh{
   std::string Mesh::get_face_string() {
     std::string face_string = "";
     for (MeshFace face : faces) {
-      face_string += std::to_string(face.size()) + " ";
-      for (int vertex_id : face) {
+      face_string += std::to_string(face.vertices.size()) + " ";
+      for (int vertex_id : face.vertices) {
         face_string += std::to_string(vertex_id) + " ";
       }
+      // RGB data
+      face_string += std::to_string(face.r) + " " + std::to_string(face.g) + " " + std::to_string(face.b);
       face_string += "\n";
     }
     return face_string;
@@ -108,9 +113,9 @@ namespace mesh{
   std::vector<Face3D> Mesh::get_faces_with_edge(const Edge3D& edge) {
     std::vector<Face3D> faces_with_edge;
     for (MeshFace face : faces) {
-      for (int i = 0; i < face.size(); i++) {
-        Vertex3D v1 = get_vertex(face[i]);
-        Vertex3D v2 = get_vertex(face[(i + 1) % face.size()]);
+      for (int i = 0; i < face.vertices.size(); i++) {
+        Vertex3D v1 = get_vertex(face.vertices[i]);
+        Vertex3D v2 = get_vertex(face.vertices[(i + 1) % face.vertices.size()]);
         Edge3D forward_edge = Edge3D(v1, v2);
         Edge3D reversed_edge = forward_edge.reversed();
         if (forward_edge == edge || reversed_edge == edge) {

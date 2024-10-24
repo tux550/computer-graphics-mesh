@@ -21,10 +21,16 @@ namespace mesh{
   }
 
   Face3D::Face3D(const std::vector<Vertex3D>& vertices):
-    vertices(vertices) {}
+    vertices(vertices),
+    r(0), g(0), b(0) {}
 
   Face3D::Face3D() :
-    vertices({}) {}
+    vertices({}),
+    r(0), g(0), b(0) {}
+
+  Face3D::Face3D(const std::vector<Vertex3D>& vertices, int r, int g, int b) :
+    vertices(vertices),
+    r(r), g(g), b(b) {}
 
   Vertex3D Face3D::get_midpoint() {
     float x = 0, y = 0, z = 0;

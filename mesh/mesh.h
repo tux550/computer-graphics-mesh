@@ -8,10 +8,15 @@
 #ifndef MESH_STRUCTURE_H
 #define MESH_STRUCTURE_H
 
+
+
 namespace mesh{ 
   // MESH
   using MeshVertex = Vertex3D;
-  using MeshFace = std::vector<int>;
+  struct MeshFace {
+    std::vector<int> vertices;
+    int r, g, b;
+  };
 
   class Mesh {
   private:

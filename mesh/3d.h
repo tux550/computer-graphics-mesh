@@ -32,8 +32,10 @@ namespace mesh{
 
   struct Face3D {
     std::vector<Vertex3D> vertices;
+    int r,g,b;
     Face3D(const std::vector<Vertex3D>& vertices);
     Face3D();
+    Face3D(const std::vector<Vertex3D>& vertices, int r, int g, int b) ;
     Vertex3D get_midpoint();
     std::vector<Edge3D> get_edges();
   };

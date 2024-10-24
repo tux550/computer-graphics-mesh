@@ -8,6 +8,8 @@
 #include "mesh.h"
 #include "geometry.h"
 
+#define DEBUG_COLOR
+
 using namespace mesh;
 
 using CubeVertexes = std::array<Vertex3D, 8>;
@@ -115,7 +117,11 @@ std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t
       Edge3D(vertex, cube[n[0]]).get_midpoint(),
       Edge3D(vertex, cube[n[1]]).get_midpoint(),
       Edge3D(vertex, cube[n[2]]).get_midpoint()
-    } )
+      }
+      #ifdef DEBUG_COLOR
+      , 255, 0, 0
+      #endif
+    )
   };
 
 }
@@ -141,7 +147,11 @@ std::vector<Face3D> getFacesVertex2(const CubeVertexes& cube, std::vector<size_t
   auto e3 = Edge3D(cube[i2], cube[b2]);
   auto e4 = Edge3D(cube[i2], cube[b1]);
   return {
-    Face3D( {e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint()} )
+    Face3D( {e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint()}
+      #ifdef DEBUG_COLOR
+      ,0, 255, 0
+      #endif
+    )
   };
 }
 
@@ -183,8 +193,16 @@ std::vector<Face3D> getFacesVertex3(const CubeVertexes& cube, std::vector<size_t
   auto ec1 = Edge3D(cube[i3], cube[c1]);
   auto ec2 = Edge3D(cube[i3], cube[c2]);
   return {
-    Face3D( {ea1.get_midpoint(), eb1.get_midpoint(), ec1.get_midpoint()} ),
-    Face3D( {eb1.get_midpoint(), eb2.get_midpoint(), ec2.get_midpoint(), ec1.get_midpoint()} )
+    Face3D( {ea1.get_midpoint(), eb1.get_midpoint(), ec1.get_midpoint()}
+      #ifdef DEBUG_COLOR
+      ,0, 0, 255
+      #endif
+    ),
+    Face3D( {eb1.get_midpoint(), eb2.get_midpoint(), ec2.get_midpoint(), ec1.get_midpoint()}
+      #ifdef DEBUG_COLOR
+      ,0, 0, 255
+      #endif
+    )
   };  
 }
 
@@ -206,10 +224,18 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
   // 1. No unique neighbors. Then it is a diagonal plane
   if (min_neighbors == 0) {
     // Make sure that i4 is the one with no unique neighbors
-    if (n4.size() > 1) {
+    if (n4.size() != 0) {
       std::swap(i4, i3);
       std::swap(n4, n3);
     } 
+    if (n4.size() != 0) {
+      std::swap(i4, i2);
+      std::swap(n4, n2);
+    }
+    if (n4.size() != 0) {
+      std::swap(i4, i1);
+      std::swap(n4, n1);
+    }
     // Get points
     auto a1 = n1[0];
     auto a2 = n1[1];
@@ -238,7 +264,11 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
         e1.get_midpoint(), e2.get_midpoint(), // Points close to i1
         e3.get_midpoint(), e4.get_midpoint(), // Points close to i2
         e5.get_midpoint(), e6.get_midpoint()  // Points close to i3
-      } )
+        }
+        #ifdef DEBUG_COLOR
+        ,128, 0, 128 // purple
+        #endif
+      )
     };
   }
   // 2. All have 1 neighbor. Then it is a square parallel to the faces
@@ -259,7 +289,11 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
     auto e3 = Edge3D(cube[i3], cube[n3[0]]);
     auto e4 = Edge3D(cube[i4], cube[n4[0]]);
     return {
-      Face3D( {e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint()} )
+      Face3D( {e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint()}
+        #ifdef DEBUG_COLOR
+        ,255, 255, 0 // yellow
+        #endif
+      )
     };
   }
   // CASE: Curved 
@@ -306,15 +340,27 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
     // Build faces
     // > Triangle 1
     faces.push_back(
-      Face3D( {e_a1.get_midpoint(), e_b1.get_midpoint(),  e_a2.get_midpoint()})
+      Face3D( {e_a1.get_midpoint(), e_b1.get_midpoint(),  e_a2.get_midpoint()}
+        #ifdef DEBUG_COLOR
+        ,128, 128, 128 // teal
+        #endif
+      )
     );
     // > Cuadrilateral
     faces.push_back(
-      Face3D( {e_b1.get_midpoint(), e_d2.get_midpoint(), e_d1.get_midpoint(), e_a2.get_midpoint()})
+      Face3D( {e_b1.get_midpoint(), e_d2.get_midpoint(), e_d1.get_midpoint(), e_a2.get_midpoint()}
+        #ifdef DEBUG_COLOR
+        ,128, 128, 128 // teal
+        #endif
+      )
     );
     // > Triangle 2
     faces.push_back(
-      Face3D( {e_d1.get_midpoint(), e_c1.get_midpoint(), e_a2.get_midpoint()})
+      Face3D( {e_d1.get_midpoint(), e_c1.get_midpoint(), e_a2.get_midpoint()}
+        #ifdef DEBUG_COLOR
+        ,128, 128, 128 // teal
+        #endif
+      )
     );
     return faces;
   }
@@ -424,7 +470,7 @@ std::vector<Face3D> adaptativeMarchingCubes(
   double y_end,
   double z_end,
   double precision,
-  size_t samples = 1000
+  size_t samples = 50000
 ) {
   // Return value
   std::vector<Face3D> faces;
@@ -443,8 +489,8 @@ std::vector<Face3D> adaptativeMarchingCubes(
   std::uniform_real_distribution<double> dis_z(0, dz);
   // Sample squares
   for (double x = x_start; x < x_end; x += dx) {
-    for (double y = y_start; y < x_end; y += dy) {
-      for (double z = z_start; z < x_end; z += dz) {
+    for (double y = y_start; y < y_end; y += dy) {
+      for (double z = z_start; z < z_end; z += dz) {
         // Sample the cube
         bool positive = false;
         bool negative = false;
@@ -543,7 +589,8 @@ int main() {
     "out.ply",
     -2,-2,-2,
     2,2,2,
-    0.5
+    //0.5
+    0.125
   );
   return 0;
 }
