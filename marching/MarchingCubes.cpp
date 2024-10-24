@@ -182,19 +182,6 @@ Vertex3D getVertex(size_t index) {
 
 
 
-bool pointingIntoCube(Vertex3D a, Vertex3D b, Vertex3D c, CubeVertexes cube) {
-  Vertex3D cross = cross_product(a-b, c-b); // b->a x b->c 
-  Vertex3D triangle_center = (a + b + c) / 3.0;
-
-  Vertex3D point_into_cube = getCenter(cube) - triangle_center;
-  if (dot_product(cross, point_into_cube) > 0) {
-    return true;
-  }
-  else {
-    return false;
-  }
-}
-
 bool pointingSameDirection(Vertex3D a,  Vertex3D b, Vertex3D c, Vertex3D dir_vec) {
   Vertex3D cross = cross_product(a-b, c-b); // b->a x b->c 
   if (dot_product(cross, dir_vec) > 0) {
@@ -249,7 +236,7 @@ std::vector<std::vector<size_t>> getAdyacentColoredVertices(const CubeColors& co
 }
 
 
-std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t> vertex_indexes) {
+std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t> vertex_indexes, std::function<double(double, double, double)> func) {
   auto vertex_index = vertex_indexes[0];
   // Get neighbors
   Vertex3D vertex = cube[vertex_index];
@@ -260,7 +247,9 @@ std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t
     Edge3D(vertex, cube[n[1]]).get_midpoint(),
     Edge3D(vertex, cube[n[2]]).get_midpoint()
   };
-  if (!pointingIntoCube(points[0], points[1], points[2], cube)) {
+  // Direction vector: vertex_index to opposite vertex
+  Vertex3D dir_vec = cube[getOppositeVertex(vertex_index)] - vertex;
+  if (!pointingSameDirection(points[0], points[1], points[2], dir_vec)) {
     std::reverse(n.begin(), n.end());
   }
 
@@ -278,7 +267,7 @@ std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t
 
 }
 
-std::vector<Face3D> getFacesVertex2(const CubeVertexes& cube, std::vector<size_t> vertex_indexes) {
+std::vector<Face3D> getFacesVertex2(const CubeVertexes& cube, std::vector<size_t> vertex_indexes, std::function<double(double, double, double)> func) {
   // Get points
   size_t i1 = vertex_indexes[0];
   size_t i2 = vertex_indexes[1];
@@ -299,10 +288,13 @@ std::vector<Face3D> getFacesVertex2(const CubeVertexes& cube, std::vector<size_t
   auto e3 = Edge3D(cube[i2], cube[b2]);
   auto e4 = Edge3D(cube[i2], cube[b1]);
 
+  // Directing vector: i1->opposite vertex
+  Vertex3D dir_vec = cube[getOppositeVertex(i1)] - cube[i1];
+
   auto points = std::vector<Vertex3D> {
     e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint()
   };
-  if (!pointingIntoCube(points[0], points[1], points[2], cube)) {
+  if (!pointingSameDirection(points[0], points[1], points[2], dir_vec)) {
     // Reverse
     std::reverse(points.begin(), points.end());
   }
@@ -316,7 +308,7 @@ std::vector<Face3D> getFacesVertex2(const CubeVertexes& cube, std::vector<size_t
   };
 }
 
-std::vector<Face3D> getFacesVertex3(const CubeVertexes& cube, std::vector<size_t> vertex_indexes) {
+std::vector<Face3D> getFacesVertex3(const CubeVertexes& cube, std::vector<size_t> vertex_indexes, std::function<double(double, double, double)> func) {
   // Get points
   size_t i1 = vertex_indexes[0];
   size_t i2 = vertex_indexes[1];
@@ -390,7 +382,7 @@ std::vector<Face3D> getFacesVertex3(const CubeVertexes& cube, std::vector<size_t
 }
 
 
-std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t> vertex_indexes) {
+std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t> vertex_indexes, std::function<double(double, double, double)> func) {
   // How many neighbors has the least vertex not in the list
   size_t i1 = vertex_indexes[0];
   size_t i2 = vertex_indexes[1];
@@ -598,22 +590,6 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
 }
 
 
-std::vector<Face3D> SingleVertexCase(const CubeVertexes& cube, const CubeColors &colors) {
-  // Find vertex with color
-  size_t vertex_index = 0;
-  for (size_t i = 0; i < 8; i++) {
-    if (colors[i]) {
-      vertex_index = i;
-      break;
-    }
-  }
-  // Create faces
-  auto face = getFacesVertex1(cube, {vertex_index});
-  return {face};
-}
-
-
-
 
 std::vector<Face3D> cubeCases(
   CubeVertexes cube,
@@ -659,16 +635,16 @@ std::vector<Face3D> cubeCases(
         temp_faces = {};
         break;
       case 1:
-        temp_faces = getFacesVertex1(cube, subproblem);
+        temp_faces = getFacesVertex1(cube, subproblem, func);
         break;
       case 2:
-        temp_faces = getFacesVertex2(cube, subproblem);
+        temp_faces = getFacesVertex2(cube, subproblem, func);
         break;
       case 3:
-        temp_faces = getFacesVertex3(cube, subproblem);
+        temp_faces = getFacesVertex3(cube, subproblem, func);
         break;
       case 4:
-        temp_faces = getFacesVertex4(cube, subproblem);
+        temp_faces = getFacesVertex4(cube, subproblem, func);
         break;
       default:
         temp_faces = {};
@@ -704,10 +680,27 @@ std::vector<Face3D> adaptativeMarchingCubes(
   auto width = x_end - x_start;
   auto height = y_end - y_start;
   auto depth = z_end - z_start;
+
+  // If width, height and depth are less than the precision, return the cube
+  if (width <= precision && height <= precision && depth <= precision) {
+    CubeVertexes cube = {
+      Vertex3D(x_start, y_start, z_start),
+      Vertex3D(x_end, y_start, z_start),
+      Vertex3D(x_end, y_end, z_start),
+      Vertex3D(x_start, y_end, z_start),
+      Vertex3D(x_start, y_start, z_end),
+      Vertex3D(x_end, y_start, z_end),
+      Vertex3D(x_end, y_end, z_end),
+      Vertex3D(x_start, y_end, z_end)
+    };    
+    return cubeCases(cube, func); 
+  }
+
   // Split the space in cubes
   double dx = width / 2.0;
   double dy = height / 2.0;
   double dz = depth / 2.0;
+
   // Random sample generator
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -766,31 +759,14 @@ std::vector<Face3D> adaptativeMarchingCubes(
             if (positive) {break;} // Early exit
           }
         }
-        // If different signs
+        // If different signs: Recurse
         if (positive && negative) {
-
-          // If dx, dy, dz are less than precision
-          if (dx < precision && dy < precision && dz < precision) {
-
-            std::vector<Face3D> cube_faces = cubeCases(cube, func);
-            // Add faces to the list
-            for (const Face3D& face : cube_faces) {
-              if (face.vertices.size() <= 1) {
-                std::cerr << "Face with less than 2 vertices" << std::endl;
-                continue;
-              }
-              faces.push_back(face);
-            }
-          }
-          // Else recursive
-          else {
-            std::vector<Face3D> sub_faces = adaptativeMarchingCubes(
-              func, x, y, z, x + dx, y + dy, z + dz, precision, samples
-            );
-            for (const Face3D& face : sub_faces) {
-              faces.push_back(face);
-            }
-          }
+          std::vector<Face3D> sub_faces = adaptativeMarchingCubes(
+            func, x, y, z, x + dx, y + dy, z + dz, precision, samples
+          );
+          for (const Face3D& face : sub_faces) {
+            faces.push_back(face);
+          }        
         }
       }
     }
@@ -811,16 +787,7 @@ void draw_mesh(
       x_max, y_max, z_max,
       precision
   );
-    std::cout << "Faces: " << faces.size() << std::endl;
-  /*
   std::cout << "Faces: " << faces.size() << std::endl;
-  for (size_t i = 0; i < faces.size(); i++) {
-    std::cout << "Face " << i << ": " << std::endl;
-    for (size_t j = 0; j < faces[i].vertices.size(); j++) {
-      std::cout << "  Vertex " << j << ": (" << faces[i].vertices[j].x << ", " << faces[i].vertices[j].y << ", " << faces[i].vertices[j].z << ")" << std::endl;
-    }
-  }
-  */
   // Create mesh
   Mesh mesh(faces);
   // Save mesh
