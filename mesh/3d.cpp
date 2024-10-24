@@ -32,6 +32,10 @@ namespace mesh{
     return Vertex3D(v1.x / scalar, v1.y / scalar, v1.z / scalar);
   }
 
+  Vertex3D operator*(const Vertex3D& v1, double scalar) {
+    return Vertex3D(v1.x * scalar, v1.y * scalar, v1.z * scalar);
+  }
+
   Vertex3D cross_product(const Vertex3D& v1, const Vertex3D& v2) {
     return Vertex3D(
       v1.y * v2.z - v1.z * v2.y,

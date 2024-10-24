@@ -22,7 +22,26 @@ Vertex3D getCenter(const CubeVertexes& cube) {
   return (cube[0] + cube[6]) / 2.0;
 }
 
+Vertex3D weightedMidpoint(const Vertex3D& a, const Vertex3D& b, std::function<double(double, double, double)> func) {
+  double value_a = func(a.x, a.y, a.z);
+  double value_b = func(b.x, b.y, b.z);
 
+  if (value_a == 0 && value_b == 0) {
+    return (a + b) / 2.0;
+  }
+  if (value_a == 0) {
+    return a;
+  }
+  if (value_b == 0) {
+    return b;
+  }
+
+  // Interpolate between a and b to find where it should be 0 linearly
+  double diff = std::abs(value_a - value_b);
+  Vertex3D atob = b - a;
+  double t = std::abs(value_a) / diff;
+  return a + atob * t;
+}
 
 
 double getSign(double value) {
@@ -243,9 +262,9 @@ std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t
   std::vector<size_t> n = getVertexNeighbors(vertex_index);
   // Triangle is midpoint between vertex and neighbors
   auto points = std::vector<Vertex3D> {
-    Edge3D(vertex, cube[n[0]]).get_midpoint(),
-    Edge3D(vertex, cube[n[1]]).get_midpoint(),
-    Edge3D(vertex, cube[n[2]]).get_midpoint()
+    weightedMidpoint(vertex, cube[n[0]], func),
+    weightedMidpoint(vertex, cube[n[1]], func),
+    weightedMidpoint(vertex, cube[n[2]], func)
   };
   // Direction vector: vertex_index to opposite vertex
   Vertex3D dir_vec = cube[getOppositeVertex(vertex_index)] - vertex;
@@ -254,11 +273,7 @@ std::vector<Face3D> getFacesVertex1(const CubeVertexes& cube, std::vector<size_t
   }
 
   return {
-    Face3D( {
-      Edge3D(vertex, cube[n[0]]).get_midpoint(),
-      Edge3D(vertex, cube[n[1]]).get_midpoint(),
-      Edge3D(vertex, cube[n[2]]).get_midpoint()
-      }
+    Face3D(points
       #ifdef DEBUG_COLOR
       , 255, 0, 0
       #endif
@@ -292,7 +307,10 @@ std::vector<Face3D> getFacesVertex2(const CubeVertexes& cube, std::vector<size_t
   Vertex3D dir_vec = cube[getOppositeVertex(i1)] - cube[i1];
 
   auto points = std::vector<Vertex3D> {
-    e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint()
+    weightedMidpoint(cube[i1], cube[a1], func),
+    weightedMidpoint(cube[i1], cube[a2], func),
+    weightedMidpoint(cube[i2], cube[b2], func),
+    weightedMidpoint(cube[i2], cube[b1], func)
   };
   if (!pointingSameDirection(points[0], points[1], points[2], dir_vec)) {
     // Reverse
@@ -352,10 +370,15 @@ std::vector<Face3D> getFacesVertex3(const CubeVertexes& cube, std::vector<size_t
   Vertex3D dir_vec_cuadrilateral = getCenter(cube) - cube[i1];
 
   auto points1 = std::vector<Vertex3D> {
-    ea1.get_midpoint(), eb1.get_midpoint(), ec1.get_midpoint()
+    weightedMidpoint(cube[i1], cube[a1], func),
+    weightedMidpoint(cube[i2], cube[b1], func),
+    weightedMidpoint(cube[i3], cube[c1], func)
   };
   auto points2 = std::vector<Vertex3D> {
-    eb1.get_midpoint(), eb2.get_midpoint(), ec2.get_midpoint(), ec1.get_midpoint()
+    weightedMidpoint(cube[i2], cube[b1], func),
+    weightedMidpoint(cube[i2], cube[b2], func),
+    weightedMidpoint(cube[i3], cube[c2], func),
+    weightedMidpoint(cube[i3], cube[c1], func)
   };
 
   if (!pointingSameDirection(points1[0], points1[1], points1[2], dir_vec_triangle)) {
@@ -435,7 +458,12 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
     auto e6 = Edge3D(cube[i3], cube[c2]);
     // Get points
     auto points = std::vector<Vertex3D> {
-      e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint(), e5.get_midpoint(), e6.get_midpoint()
+      weightedMidpoint(cube[i1], cube[a1], func),
+      weightedMidpoint(cube[i1], cube[a2], func),
+      weightedMidpoint(cube[i2], cube[b1], func),
+      weightedMidpoint(cube[i2], cube[b2], func),
+      weightedMidpoint(cube[i3], cube[c1], func),
+      weightedMidpoint(cube[i3], cube[c2], func)
     };
     // Get direction vector
     Vertex3D dir_vec = getCenter(cube) - cube[i4];
@@ -472,7 +500,10 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
     auto e4 = Edge3D(cube[i4], cube[n4[0]]);
     // Points
     auto points = std::vector<Vertex3D> {
-      e1.get_midpoint(), e2.get_midpoint(), e3.get_midpoint(), e4.get_midpoint()
+      weightedMidpoint(cube[i1], cube[n1[0]], func),
+      weightedMidpoint(cube[i2], cube[n2[0]], func),
+      weightedMidpoint(cube[i3], cube[n3[0]], func),
+      weightedMidpoint(cube[i4], cube[n4[0]], func)
     };
     // Get direction vector
     Vertex3D dir_vec = getCenter(cube) - cube[i1];
@@ -531,13 +562,20 @@ std::vector<Face3D> getFacesVertex4(const CubeVertexes& cube, std::vector<size_t
     auto e_d2 = Edge3D(cube[i4], cube[d2]);
     // Build points
     auto triangle1 = std::vector<Vertex3D> {
-      e_a1.get_midpoint(), e_b1.get_midpoint(), e_a2.get_midpoint()
+      weightedMidpoint(cube[i1], cube[a1], func),
+      weightedMidpoint(cube[i2], cube[b1], func),
+      weightedMidpoint(cube[i1], cube[a2], func)
     };
     auto quad = std::vector<Vertex3D> {
-      e_b1.get_midpoint(), e_d2.get_midpoint(), e_d1.get_midpoint(), e_a2.get_midpoint()
+      weightedMidpoint(cube[i2], cube[b1], func),
+      weightedMidpoint(cube[i4], cube[d2], func),
+      weightedMidpoint(cube[i4], cube[d1], func),
+      weightedMidpoint(cube[i1], cube[a2], func)
     };
     auto triangle2 = std::vector<Vertex3D> {
-      e_d1.get_midpoint(), e_c1.get_midpoint(), e_a2.get_midpoint()
+      weightedMidpoint(cube[i4], cube[d1], func),
+      weightedMidpoint(cube[i3], cube[c1], func),
+      weightedMidpoint(cube[i1], cube[a2], func)
     };
     // Direction vectors
     // Triangle 1: i1->center
@@ -805,11 +843,12 @@ int main() {
     0.125
   );*/
   draw_mesh(
-    doubleHelix,
+    f,
+    //doubleHelix,
     "out.ply",
     -2,-2,-2,
     2,2,2,
-    0.125
+    0.25
   );
   return 0;
 }

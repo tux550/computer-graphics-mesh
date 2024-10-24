@@ -23,6 +23,7 @@ namespace mesh{
   Vertex3D operator+(const Vertex3D& v1, const Vertex3D& v2);
   Vertex3D operator-(const Vertex3D& v1, const Vertex3D& v2);
   Vertex3D operator/(const Vertex3D& v1, double scalar);
+  Vertex3D operator*(const Vertex3D& v1, double scalar);
 
   Vertex3D cross_product(const Vertex3D& v1, const Vertex3D& v2);
   
