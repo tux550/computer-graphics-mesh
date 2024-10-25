@@ -7,7 +7,7 @@ marching_cubes:
 	g++ -o $(OUT_FILES) -I ./mesh $(MESH_LIB_FILES) marching/MarchingCubes.cpp
 	./$(OUT_FILES)
 marching_squares:
-	g++ -o $(OUT_FILES) marching/MarchingSquares.cpp $(MESH_LIB_FILES)
+	g++ -o $(OUT_FILES) -I ./mesh  $(MESH_LIB_FILES) marching/MarchingSquares.cpp 
 	./$(OUT_FILES)
 	cd $(OUTPUT_FOLDERS) && epstopdf $(EPS_FILES)
 cc:
