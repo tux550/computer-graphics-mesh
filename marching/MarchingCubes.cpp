@@ -7,6 +7,7 @@
 #include <random>
 #include <algorithm>
 #include "mesh.h"
+#include "composite.h"
 #include "geometry.h"
 
 #define DEBUG_COLOR
@@ -119,6 +120,36 @@ void flipColors(CubeColors& colors) {
   for (size_t i = 0; i < 8; i++) {
     colors[i] = !colors[i];
   }
+}
+
+auto getCylinderEquation(double radius, double height, double x_center, double y_center, double z_center) {
+  return [radius, height, x_center, y_center, z_center](double x, double y, double z) {
+    double dx = x - x_center;
+    double dy = y - y_center;
+    double dz = z - z_center;
+    double radialDistance = std::sqrt(dx * dx + dy * dy) - radius;
+    double heightDistance = std::abs(dz) - height / 2.0;
+    return std::max(radialDistance, heightDistance);
+  };
+}
+
+auto getSphereEquation(double radius, double x_center, double y_center, double z_center) {
+  return [radius, x_center, y_center, z_center](double x, double y, double z) {
+    double dx = x - x_center;
+    double dy = y - y_center;
+    double dz = z - z_center;
+    return std::sqrt(dx * dx + dy * dy + dz * dz) - radius;
+  };
+}
+
+auto getRectangleEquation(double x_start, double y_start, double z_start, double x_end, double y_end, double z_end) {
+  return [x_start, y_start, z_start, x_end, y_end, z_end](double x, double y, double z) {
+    double dx = -(x - x_start) * (x_end - x);
+    double dy = -(y - y_start) * (y_end - y);
+    double dz = -(z - z_start) * (z_end - z);
+    double factor = dx > 0 || dy > 0 || dz > 0 ? 1 : -1;
+    return factor * std::min({std::abs(dx), std::abs(dy), std::abs(dz)});
+  };
 }
 
 // Front face 0-3 in counter-clockwise order, back face 4-7 in counter-clockwise order
@@ -711,7 +742,7 @@ std::vector<Face3D> adaptativeMarchingCubes(
   double y_end,
   double z_end,
   double precision,
-  size_t samples = 100
+  size_t samples = 1000
 ) {
   // Return value
   std::vector<Face3D> faces;
@@ -843,12 +874,34 @@ int main() {
     0.125
   );*/
   draw_mesh(
-    f,
-    //doubleHelix,
+    CompositeFunctor3D(
+      CompositeFunctor3D(
+        CompositeFunctor3D(
+          CompositeFunctor3D(
+            getCylinderEquation(1, 4, -4, -4, 0),
+            getCylinderEquation(1, 4, 4, -4, 0),
+            OperationType::UNION
+          ),
+          CompositeFunctor3D(
+            getCylinderEquation(1, 4, -4, 4, 0),
+            getCylinderEquation(1, 4, 4, 4, 0),
+            OperationType::UNION
+          ),
+          OperationType::UNION
+        ),
+        // Rectangle from -5,-5,2 to 5,5,4
+        getRectangleEquation(-5, -5, 2, 5, 5, 4),
+        OperationType::UNION
+      ),
+      // Sphere at 0,0,3 with radius 2
+      getSphereEquation(2, 0, 0, 3),
+      OperationType::SUBSTRACT
+    ),
+    //getCylinderEquation(1, 2, -4, 0, -4),
     "out.ply",
-    -2,-2,-2,
-    2,2,2,
-    0.25
+    -10,-10,-10,
+    10,10,10,
+    1
   );
   return 0;
 }
