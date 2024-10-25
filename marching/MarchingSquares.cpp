@@ -175,15 +175,31 @@ void writeToEPS(
   double min_y, double max_y,
   
   const std::vector<Line>& lines, const std::string& filename) {
+  
+  const double OUT_HEIGHT = 1000;
+  const double OUT_WIDTH = 1000;
+
+  const double width = max_x - min_x;
+  const double height = max_y - min_y;
+
+  const double rescale_factor = std::min(OUT_HEIGHT / height, OUT_WIDTH / width);
+
+  auto rescale_x = [min_x, rescale_factor](double x) {
+    return (x - min_x) * rescale_factor;
+  };
+  auto rescale_y = [min_y, rescale_factor](double y) {
+    return (y - min_y) * rescale_factor;
+  };
+
 
   std::ofstream file(filename);
   file << "%!PS-Adobe-3.0 EPSF-3.0" << std::endl;
-  file << "%%BoundingBox: " << min_x << " " << min_y << " " << max_x << " " << max_y << std::endl;
+  file << "%%BoundingBox: " << 0 << " " << 0 << " " << OUT_WIDTH << " " << OUT_HEIGHT << std::endl;
   file << "0.01 setlinewidth" << std::endl;
   for (const Line& line : lines) {
     file << "newpath" << std::endl;
-    file << line.x0 << " " << line.y0 << " moveto" << std::endl;
-    file << line.x1 - line.x0 << " " << line.y1 - line.y0 << " rlineto" << std::endl;
+    file << rescale_x(line.x0) << " " << rescale_y(line.y0) << " moveto" << std::endl;
+    file << rescale_x(line.x1) << " " << rescale_y(line.y1) << " lineto" << std::endl;
     file << "closepath" << std::endl;
     file << "stroke" << std::endl;
   }
@@ -210,7 +226,7 @@ void draw_curve(
 int main() {
   draw_curve(
     f,
-    "output/implicit.eps",
+    "outputs/implicit.eps",
     -4, -4,
     4, 4,
     0.01
