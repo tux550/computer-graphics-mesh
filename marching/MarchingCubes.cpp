@@ -898,7 +898,7 @@ int main() {
       OperationType::SUBSTRACT
     ),
     //getCylinderEquation(1, 2, -4, 0, -4),
-    "out.ply",
+    "output/out.ply",
     -10,-10,-10,
     10,10,10,
     1
