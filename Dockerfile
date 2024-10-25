@@ -9,3 +9,4 @@ RUN apt install -y texlive-font-utils
 # Setup working directory
 RUN mkdir /app
 WORKDIR /app
+RUN mkdir /app/outputs
