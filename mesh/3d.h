@@ -4,6 +4,7 @@
 #include <string>
 #include <algorithm>
 #include <cmath>
+#include <optional>
 
 
 #ifndef MESH_GENERICS_3D_H
@@ -16,6 +17,7 @@ namespace mesh{
     float x, y, z;
     Vertex3D(float x, float y, float z);
     Vertex3D();
+    double magnitude();
     bool operator==(const Vertex3D& other) const;
     bool operator<(const Vertex3D& other) const;
     Vertex3D normalized();
@@ -38,6 +40,22 @@ namespace mesh{
     Vertex3D get_midpoint();
   };
 
+  // Additional
+  struct Plane3D {
+    Vertex3D point;
+    Vertex3D normal;
+    Plane3D(const Vertex3D& point, const Vertex3D& normal);
+  };
+
+  struct Line3D {
+    Vertex3D point;
+    Vertex3D direction;
+    Line3D(const Vertex3D& point, const Vertex3D& direction);
+  };
+
+  std::optional<Vertex3D> intersect_lp(const Line3D& l1, const Plane3D& p1);
+
+
   struct Face3D {
     std::vector<Vertex3D> vertices;
     int r,g,b;
@@ -45,9 +63,15 @@ namespace mesh{
     Face3D();
     Face3D(const std::vector<Vertex3D>& vertices, int r, int g, int b) ;
     Vertex3D get_midpoint();
+    Plane3D get_plane();
+    Vertex3D get_normal();
+    bool is_triangle();
+    void displace(const Vertex3D& v);
+    std::optional<Vertex3D> intersect(const Line3D& l1);
     std::vector<Edge3D> get_edges();
     void flip();
   };
+
 
 }
 

@@ -1,8 +1,4 @@
-#include <cmath>
-#include "mesh/mesh.h"
-#include "mesh/geometry.h"
-
-using namespace mesh;
+#include "SplittingEdges.h"
 
 
 Mesh sphereBySplittingEdges(int n){
@@ -34,9 +30,10 @@ Mesh sphereBySplittingEdges(int n){
 }
 
 
-
+/*
 int main() {
   Mesh sphere = sphereBySplittingEdges(3);
   sphere.save("outputs/sphere.ply");
   return 0;
 }
+*/

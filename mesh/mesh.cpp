@@ -137,4 +137,11 @@ namespace mesh{
     }
   }
 
+  // Displace
+  void Mesh::displace(const Vertex3D& v) {
+    for (Vertex3D& vertex : vertices) {
+      vertex = vertex + v;
+    }
+  }
+
 }

@@ -8,6 +8,9 @@ help: # Automatically parse from Makefile
 	@egrep "^[a-zA-Z_]+:.*?# .*$$" $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?# "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 # BUILD
+ray_tracer: # Build RayTracer
+	g++ -o RayTracer.exe -I ./mesh -I ./algos algos/SplittingEdges.cpp algos/SplittingEdges.h $(SRC_MESH_FILES)  render/render.cpp
+
 marching_cubes: # Build MarchingCubes
 	g++ -o MarchingCubes.exe -I ./mesh $(SRC_MESH_FILES) marching/MarchingCubes.cpp
 marching_squares: # Build MarchingSquares

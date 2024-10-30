@@ -43,6 +43,7 @@ namespace mesh{
     Vertex3D get_face_midpoint(const MeshFace& face);
     Vertex3D get_face_midpoint(int face_index);
     void move_point(const Vertex3D& point, const Vertex3D& target);
+    void displace(const Vertex3D& v);
   };
 }
 
