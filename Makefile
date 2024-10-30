@@ -15,7 +15,7 @@ marching_squares: # Build MarchingSquares
 catmull_clark: # Build CatmullClark
 	g++ -o CatmullClark.exe -I ./mesh $(SRC_MESH_FILES) algos/CatmullClark.cpp
 splitting_edges: # Build SplittingEdges
-	g++ -o SplittingEdges.exe -I ./mesh $(SRC_MESH_FILES) algos/SplittingEdges.cpp
+	g++ -o SplittingEdges.exe -I ./mesh $(SRC_MESH_FILES) misc/SplittingEdges.cpp
 
 # UTILS	
 topdf: # Transform eps files to pdf (MarchingSquares)
