@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <map>
 #include "3d.h"
 
 #ifndef MESH_STRUCTURE_H
@@ -31,7 +32,9 @@ namespace mesh{
     Face3D to_face(const MeshFace& face);
   public:
     Mesh(const std::vector<Face3D>& faces);
-    void save(const char* filename);
+    Mesh(const std::string& filename);
+    void save_ply(const char* filename);
+
     int insert_face(const Face3D& face);
     int insert_vertex(const Vertex3D& vertex);
     std::vector<Vertex3D> get_vertices();

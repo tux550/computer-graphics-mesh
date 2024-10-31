@@ -6,7 +6,7 @@
 #include <string>
 #include "mesh.h"
 #include "3d.h"
-#include "SplittingEdges.h"
+//#include "SplittingEdges.h"
 
 
 using namespace mesh;
@@ -82,7 +82,13 @@ struct Camera{
 int main(){
   auto camera = Camera{200, 200, 5, 0.0078125}; //0.125};
   auto meshes = std::vector<Mesh>{}; //unitCircleTetrahedron()};
+  std::cout << "Loading ply" << std::endl;
+  auto sphere = Mesh("outputs/ck.ply");
+  std::cout << "Loaded mesh with " << sphere.get_faces().size() << " faces" << std::endl;
+  // Move by 5 away from camera
+  sphere.displace(Vertex3D(0, 0, 10));
   // Create circle
+  /*
   std::cout << "Creating circle" << std::endl;
   auto sphere = sphereBySplittingEdges(3);
   std::cout << "Circle created with " << sphere.get_faces().size() << " faces" << std::endl;
@@ -93,16 +99,23 @@ int main(){
   for (auto vertex : face.vertices){
     std::cout << "Vertex: (" << vertex.x << ", " << vertex.y << ", " << vertex.z << ")" << std::endl;
   }
+  */
 
   meshes.push_back(sphere);
   
   std::cout << "Rendering" << std::endl;
   // Render
+  int count = 0;
+  int max = camera.width * camera.height;
+  // Get number of steps that equal 1%
+  int step = max / 100;
   for (auto x = 0; x < camera.width; x++){
     for (auto y = 0; y < camera.height; y++){
-      if (x % 100 == 0 && y % 100 == 0){
-        std::cout << "Rendering pixel (" << x << ", " << y << ")" << std::endl;
+      // Output progress bar every 5%
+      if (count % step == 0){
+        std::cout << "Progress: " << count / step  << "%" << "(" << count << "/" << max << ")" << std::endl;
       }
+      count++;
       // Draw ray
       auto ray = camera.getRay(x, y);
       // Find intersection

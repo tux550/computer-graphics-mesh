@@ -33,7 +33,7 @@ Mesh sphereBySplittingEdges(int n){
 /*
 int main() {
   Mesh sphere = sphereBySplittingEdges(3);
-  sphere.save("outputs/sphere.ply");
+  sphere.save_ply("outputs/sphere.ply");
   return 0;
 }
 */

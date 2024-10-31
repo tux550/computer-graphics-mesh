@@ -1,4 +1,5 @@
 #include "mesh.h"
+#include <sstream>
 
 namespace mesh{
   // Transform to generic Vertex3D
@@ -48,6 +49,99 @@ namespace mesh{
     for (Face3D face : faces) {
       insert_face(face);
     }
+  }
+
+  // Constructor from PLY file
+  Mesh::Mesh(const std::string& filename) {
+
+    std::ifstream file;
+    file.open(filename);
+    std::string line;
+    // Read header
+    std::getline(file, line);
+    if (line != "ply") {
+      std::cerr << "Invalid PLY file" << std::endl;
+      return;
+    }
+    std::getline(file, line);
+    if (line != "format ascii 1.0") {
+      std::cerr << "Invalid PLY fileformat" << std::endl;
+      return;
+    }
+    // Elements
+    std::vector<std::string> elements;
+    std::map<std::string, int> element_count;
+    std::getline(file, line);
+    std::string current_element = "";
+    while (line != "end_header"){
+      // Split line by spaces
+      std::istringstream iss(line);
+      std::string t1, t2, t3;
+      iss >> t1 >> t2 >> t3;
+      // Determine input
+      if (t1 == "element"){
+        // Read element
+        current_element = t2;
+        auto current_count = std::stoi(t3);
+        elements.push_back(current_element);
+        element_count[current_element] = current_count;
+      }
+      else if (t1 == "property"){
+        // skip
+      }
+      // Read next line
+      std::getline(file, line);
+    } 
+    // Read vertices
+    for (auto element : elements){
+      if (element == "vertex"){
+        for (int i = 0; i < element_count[element]; i++){
+          std::getline(file, line);
+          std::istringstream iss(line);
+          double x, y, z;
+          iss >> x >> y >> z;
+          vertices.push_back(Vertex3D(x, y, z));
+        }
+      }
+      else if (element == "face"){
+        for (int i = 0; i < element_count[element]; i++){
+          std::getline(file, line);
+          std::istringstream iss(line);
+          int vertex_count;
+          iss >> vertex_count;
+          std::vector<int> vertex_ids;
+          for (int j = 0; j < vertex_count; j++){
+            int vertex_id;
+            iss >> vertex_id;
+            vertex_ids.push_back(vertex_id);
+          }
+          // If iss is not empty, read color
+          int r, g, b;
+          if (iss >> r >> g >> b){}
+          else {
+            // Default color
+            r = 255;
+            g = 255;
+            b = 255;
+          }
+          // Create face
+          MeshFace face;
+          face.vertices = vertex_ids;
+          face.r = r;
+          face.g = g;
+          face.b = b;
+          faces.push_back(face);
+        }
+      }
+      else {
+        // Skip element
+        for (int i = 0; i < element_count[element]; i++){
+          std::getline(file, line);
+        }
+      }
+    }
+    // Close file
+    file.close();
   }
 
   // Generic getter for vertices
@@ -100,7 +194,7 @@ namespace mesh{
     return face_string;
   }
 
-  void Mesh::save(const char* filename) {
+  void Mesh::save_ply(const char* filename) {
     std::ofstream file;
     file.open(filename);
     file << get_header();

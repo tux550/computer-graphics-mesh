@@ -860,7 +860,7 @@ void draw_mesh(
   // Create mesh
   Mesh mesh(faces);
   // Save mesh
-  mesh.save(filename.c_str());
+  mesh.save_ply(filename.c_str());
 }
 
 int main() {

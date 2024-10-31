@@ -113,6 +113,6 @@ Mesh catmullClark(int n){
 
 int main() {
   Mesh sphere = catmullClark(5);
-  sphere.save("outputs/ck.ply");
+  sphere.save_ply("outputs/ck.ply");
   return 0;
 }
