@@ -9,8 +9,10 @@ help: # Automatically parse from Makefile
 	@egrep "^[a-zA-Z_]+:.*?# .*$$" $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?# "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 # BUILD
+pintor: # Build Pintor
+	g++ -o Pintor.exe -I ./mesh -I ./algos $(SRC_MESH_FILES) algos/SplittingEdges.cpp render/pintor.cpp
 ray_tracer: # Build RayTracer
-	g++ -o RayTracer.exe -I ./mesh  $(SRC_MESH_FILES)  render/render.cpp
+	g++ -o RayTracer.exe -I ./mesh  $(SRC_MESH_FILES)  render/ray_tracer.cpp
 
 marching_cubes: # Build MarchingCubes
 	g++ -o MarchingCubes.exe -I ./mesh $(SRC_MESH_FILES) marching/MarchingCubes.cpp
