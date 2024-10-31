@@ -11,7 +11,7 @@ namespace mesh {
     // -1 1 1
     // 1 1 1
     // 1 -1 1
-    float d = std::sqrt(1.0f/3.0f);
+    double d = std::sqrt(1.0f/3.0f);
     std::vector<Vertex3D> v = {
       Vertex3D(-d, -d, -d),
       Vertex3D(-d, d, -d),
@@ -53,7 +53,7 @@ namespace mesh {
     // > v0, v3, v2
     // > v0, v2, v1
     // > v1, v2, v3
-    float d = std::sqrt(1.0f/3.0f);
+    double d = std::sqrt(1.0f/3.0f);
 
     std::vector<Vertex3D> v = {
       Vertex3D(-d, -d, -d),

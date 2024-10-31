@@ -1,4 +1,5 @@
-SRC_MESH_FILES = $(wildcard mesh/*.cpp) $(wildcard mesh/*.h)
+SRC_MESH_FILES = $(wildcard mesh/*.cpp)
+SRC_MESH_HEADERS = $(wildcard mesh/*.h)
 OUTPUT_FOLDERS = outputs
 OUTPUT_FILE_EPS = implicit.eps
 
@@ -9,7 +10,7 @@ help: # Automatically parse from Makefile
 
 # BUILD
 ray_tracer: # Build RayTracer
-	g++ -o RayTracer.exe -I ./mesh -I ./algos algos/SplittingEdges.cpp algos/SplittingEdges.h $(SRC_MESH_FILES)  render/render.cpp
+	g++ -o RayTracer.exe -I ./mesh -I ./algos  $(SRC_MESH_FILES) algos/SplittingEdges.cpp  render/render.cpp
 
 marching_cubes: # Build MarchingCubes
 	g++ -o MarchingCubes.exe -I ./mesh $(SRC_MESH_FILES) marching/MarchingCubes.cpp
@@ -29,3 +30,5 @@ build_image: # Build docker image
 	docker build -t mesh .
 shell: build_image # Run docker image
 	docker run -it --rm -v $(shell pwd):/app mesh bash
+clean:
+	rm -f *.exe

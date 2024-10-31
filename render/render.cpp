@@ -80,14 +80,14 @@ struct Camera{
 
 
 int main(){
-  auto camera = Camera{200, 200, 5, 1};
-  auto meshes = std::vector<Mesh>{unitCircleTetrahedron()};
+  auto camera = Camera{200, 200, 5, 0.0078125}; //0.125};
+  auto meshes = std::vector<Mesh>{}; //unitCircleTetrahedron()};
   // Create circle
   std::cout << "Creating circle" << std::endl;
   auto sphere = sphereBySplittingEdges(3);
   std::cout << "Circle created with " << sphere.get_faces().size() << " faces" << std::endl;
   // Move by 20 away from camera
-  sphere.displace(Vertex3D(0, 0, 20));
+  sphere.displace(Vertex3D(0, 0, 10));
   // Get sample vertex of first face
   auto face = sphere.get_face(0);
   for (auto vertex : face.vertices){

@@ -2,7 +2,7 @@
 
 namespace mesh{
 
-  Vertex3D::Vertex3D(float x, float y, float z) :
+  Vertex3D::Vertex3D(double x, double y, double z) :
     x(x), y(y), z(z) {}
   Vertex3D::Vertex3D() : 
     x(0), y(0), z(0) {}
@@ -20,7 +20,7 @@ namespace mesh{
   }
 
   Vertex3D Vertex3D::normalized() {
-    float norm = sqrt(x * x + y * y + z * z);
+    double norm = sqrt(x * x + y * y + z * z);
     return Vertex3D(x / norm, y / norm, z / norm);
   }
 
@@ -95,7 +95,7 @@ namespace mesh{
   }
 
   Vertex3D Face3D::get_midpoint() {
-    float x = 0, y = 0, z = 0;
+    double x = 0, y = 0, z = 0;
     for (Vertex3D vertex : vertices) {
       x += vertex.x;
       y += vertex.y;

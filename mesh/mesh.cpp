@@ -75,7 +75,7 @@ namespace mesh{
 
   // === To PLY ===
   std::string Mesh::get_header() {
-    return "ply\nformat ascii 1.0\nelement vertex " + std::to_string(vertices.size()) + "\nproperty float x\nproperty float y\nproperty float z\nelement face " + std::to_string(faces.size()) + "\nproperty list uchar int vertex_index\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
+    return "ply\nformat ascii 1.0\nelement vertex " + std::to_string(vertices.size()) + "\nproperty double x\nproperty double y\nproperty double z\nelement face " + std::to_string(faces.size()) + "\nproperty list uchar int vertex_index\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n";
   }
 
   std::string Mesh::get_vertex_string() {
